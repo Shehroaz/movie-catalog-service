@@ -3,6 +3,7 @@ package com.sherry.moviecatalogservice.controllers;
 import com.sherry.moviecatalogservice.models.CatalogItem;
 import com.sherry.moviecatalogservice.models.Movie;
 import com.sherry.moviecatalogservice.models.Rating;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,10 +18,11 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/catalog")
 public class MovieCatalogResources {
+    @Autowired
+    private RestTemplate restTemplate;
 
     @RequestMapping("/{userId}")
     public List<CatalogItem> getCatalog(@PathVariable("userId") String userId){
-      RestTemplate restTemplate = new RestTemplate();
 
         //get all related movie ID'S
         List<Rating> ratings = Arrays.asList(
