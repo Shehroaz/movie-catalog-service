@@ -19,9 +19,11 @@ public class MovieCatalogResources {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private List<CatalogItem> list;
+
     @RequestMapping("/{userId}")
     public List<CatalogItem> getCatalog(@PathVariable("userId") String userId){
-        List<CatalogItem> list  = new ArrayList<>();
 
         List<Rating> ratings = Arrays.asList(
                 new Rating("1234" , 4),
@@ -30,7 +32,7 @@ public class MovieCatalogResources {
 
         for (Rating rating : ratings){
             Movie movie = restTemplate.getForObject("http://localhost:8082/movies/" + rating.getMovieId() , Movie.class);
-            list.add(new CatalogItem(movie.getName() , "Mazy" , rating.getRating()));
+            list.add(new CatalogItem(movie.getName() , "see on your choice" , rating.getRating()));
         }
         return list;
 
