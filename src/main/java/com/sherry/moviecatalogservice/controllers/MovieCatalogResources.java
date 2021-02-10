@@ -3,6 +3,8 @@ package com.sherry.moviecatalogservice.controllers;
 import com.sherry.moviecatalogservice.models.CatalogItem;
 import com.sherry.moviecatalogservice.models.Movie;
 import com.sherry.moviecatalogservice.models.Rating;
+import com.sherry.moviecatalogservice.models.UserRating;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,29 +24,20 @@ public class MovieCatalogResources {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Autowired
-    private WebClient.Builder webClientBuilder;
-
 
     @RequestMapping("/{userId}")
     public List<CatalogItem> getCatalog(@PathVariable("userId") String userId) {
 
-        List<Rating> ratings = Arrays.asList(
-                new Rating("1234", 4),
-                new Rating("1235", 3)
-        );
+        UserRating userRating = restTemplate.getForObject("http://localhost:8083/ratingsData/users/" + userId , UserRating.class);
+        List<Rating> list = userRating.getUserRatings();
+        for(Rating rating : list){
+            System.out.println(rating.getMovieId());
+        }
 
 
-        return ratings.stream().map(rating -> {
-//          Movie movie =  restTemplate.getForObject("http://localhost:8082/movies/" + rating.getMovieId() , Movie.class);
-            Movie movie = webClientBuilder.build()
-                    .get()
-                    .uri("http://localhost:8082/movies/" + rating.getMovieId())
-                    .retrieve()
-                    .bodyToMono(Movie.class)
-                    .block();
-
-            return new CatalogItem(movie.getName(), "see it", rating.getRating());
+        return userRating.getUserRatings().stream().map(rating -> {
+          Movie movie =  restTemplate.getForObject("http://localhost:8082/movies/" + rating.getMovieId() , Movie.class);
+            return new CatalogItem(movie.getName(), "see this movie", rating.getRating());
 
         })
                 .collect(Collectors.toList());
